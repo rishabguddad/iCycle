@@ -45,8 +45,9 @@ func trySell(id int, quantity int) {
 		return
 	}
 
-	if !sell(product, quantity) {
-		fmt.Printf("Cannot sell %d x %s (stock: %d)\n", quantity, product.Name, product.Stock)
+	err := product.Sell(quantity)
+	if err != nil {
+		fmt.Printf("Cannot sell %d x %s: %v\n", quantity, product.Name, err)
 		return
 	}
 

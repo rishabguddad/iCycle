@@ -1,5 +1,10 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+)
+
 // findProduct returns a pointer to the product with the given ID,
 // or nil if there is no such product.
 func findProduct(id int) *Product {
@@ -11,13 +16,15 @@ func findProduct(id int) *Product {
 	return nil
 }
 
-// sell reduces the product's stock by quantity.
-// It returns false, and changes nothing, if the quantity is invalid
-// or there isn't enough stock.
-func sell(product *Product, quantity int) bool {
-	if quantity <= 0 || quantity > product.Stock {
-		return false
+// Sell reduces the product's stock by quantity.
+// It returns an error, and changes nothing, if the sale isn't possible.
+func (p *Product) Sell(quantity int) error {
+	if quantity <= 0 {
+		return errors.New("quantity must be at least 1")
 	}
-	product.Stock = product.Stock - quantity
-	return true
+	if quantity > p.Stock {
+		return fmt.Errorf("only %d in stock", p.Stock)
+	}
+	p.Stock = p.Stock - quantity
+	return nil
 }
