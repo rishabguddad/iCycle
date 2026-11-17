@@ -3,7 +3,18 @@ package catalog
 import (
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 )
+
+// clone returns a full copy of the product. Specs and CompatibleModels are
+// copied too, so changing the copy can never change the original.
+func (p *Product) clone() Product {
+	c := *p
+	c.Specs = maps.Clone(p.Specs)
+	c.CompatibleModels = slices.Clone(p.CompatibleModels)
+	return c
+}
 
 // Stock returns how many units are available.
 func (p *Product) Stock() int {

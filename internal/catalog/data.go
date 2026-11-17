@@ -1,12 +1,12 @@
 package catalog
 
-var categories = []Category{
+var sampleCategories = []Category{
 	{ID: 1, Name: "MacBooks"},
 	{ID: 2, Name: "Components"},
 	{ID: 3, Name: "Accessories"},
 }
 
-var products = []Product{
+var sampleProducts = []Product{
 	{
 		ID:          1,
 		Name:        "MacBook Pro 16-inch M2 Pro (2023)",
@@ -99,4 +99,9 @@ var products = []Product{
 		Price:       99900,
 		stock:       50,
 	},
+}
+
+// NewSampleStore returns a store filled with the sample data above.
+func NewSampleStore() *Store {
+	return NewStore(sampleCategories, sampleProducts)
 }
