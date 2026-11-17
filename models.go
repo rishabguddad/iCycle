@@ -12,13 +12,13 @@ type Category struct {
 }
 
 type Product struct {
-	ID               int
-	Name             string
-	Description      string
-	CategoryID       int
-	Condition        string
-	Price            int64
-	Stock            int
-	Specs            map[string]string
-	CompatibleModels []string
+	ID               int               `json:"id"`
+	Name             string            `json:"name"`
+	Description      string            `json:"description"`
+	CategoryID       int               `json:"categoryId"`
+	Condition        string            `json:"condition"`
+	Price            int64             `json:"price"` // in paise
+	Stock            int               `json:"stock"`
+	Specs            map[string]string `json:"specs,omitempty"`
+	CompatibleModels []string          `json:"compatibleModels,omitempty"`
 }
