@@ -14,7 +14,7 @@ var products = []Product{
 		CategoryID:  1,
 		Condition:   conditionRefurbished,
 		Price:       12999900,
-		Stock:       1,
+		stock:       1,
 		Specs: map[string]string{
 			"Processor": "M2 Pro",
 			"Memory":    "16GB",
@@ -28,7 +28,7 @@ var products = []Product{
 		CategoryID:  1,
 		Condition:   conditionUsed,
 		Price:       9899900,
-		Stock:       5,
+		stock:       5,
 		Specs: map[string]string{
 			"Processor": "M5",
 			"Memory":    "8GB",
@@ -42,7 +42,7 @@ var products = []Product{
 		CategoryID:  3,
 		Condition:   conditionRefurbished,
 		Price:       199900,
-		Stock:       20,
+		stock:       20,
 		Specs: map[string]string{
 			"Connector": "USB-C",
 			"Output":    "40W",
@@ -55,7 +55,7 @@ var products = []Product{
 		CategoryID:  3,
 		Condition:   conditionNew,
 		Price:       299900,
-		Stock:       15,
+		stock:       15,
 		Specs: map[string]string{
 			"Material": "Polycarbonate",
 			"Color":    "Black",
@@ -69,7 +69,7 @@ var products = []Product{
 		CategoryID:  2,
 		Condition:   conditionNew,
 		Price:       4999900,
-		Stock:       10,
+		stock:       10,
 		Specs: map[string]string{
 			"Type": "Liquid Retina XDR",
 			"Size": "16-inch",
@@ -83,7 +83,7 @@ var products = []Product{
 		CategoryID:  2,
 		Condition:   conditionNew,
 		Price:       699900,
-		Stock:       25,
+		stock:       25,
 		Specs: map[string]string{
 			"Capacity":     "52.6 Wh",
 			"Battery Type": "Lithium-polymer",
@@ -97,6 +97,6 @@ var products = []Product{
 		CategoryID:  3,
 		Condition:   conditionNew,
 		Price:       99900,
-		Stock:       50,
+		stock:       50,
 	},
 }

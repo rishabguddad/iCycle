@@ -14,7 +14,7 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 
 // handleListCategories answers GET /api/categories with every category.
 func handleListCategories(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, catalog.Categories())
+	writeJSON(w, http.StatusOK, newCategoryResponses(catalog.Categories()))
 }
 
 // handleListCategoryProducts answers GET /api/categories/{id}/products
@@ -31,12 +31,12 @@ func handleListCategoryProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, catalog.ProductsInCategory(id))
+	writeJSON(w, http.StatusOK, newProductResponses(catalog.ProductsInCategory(id)))
 }
 
 // handleListProducts answers GET /api/products with every product.
 func handleListProducts(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, catalog.Products())
+	writeJSON(w, http.StatusOK, newProductResponses(catalog.Products()))
 }
 
 // handleGetProduct answers GET /api/products/{id} with one product.
@@ -53,5 +53,5 @@ func handleGetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, product)
+	writeJSON(w, http.StatusOK, newProductResponse(product))
 }

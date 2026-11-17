@@ -6,19 +6,25 @@ const (
 	conditionUsed        = "used"
 )
 
+// Category groups products, e.g. MacBooks or Accessories.
 type Category struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int
+	Name string
 }
 
+// Product is anything the store sells: a MacBook, a part or an accessory.
 type Product struct {
-	ID               int               `json:"id"`
-	Name             string            `json:"name"`
-	Description      string            `json:"description"`
-	CategoryID       int               `json:"categoryId"`
-	Condition        string            `json:"condition"`
-	Price            int64             `json:"price"` // in paise
-	Stock            int               `json:"stock"`
-	Specs            map[string]string `json:"specs,omitempty"`
-	CompatibleModels []string          `json:"compatibleModels,omitempty"`
+	ID               int
+	Name             string
+	Description      string
+	CategoryID       int
+	Condition        string
+	Price            int64 // in paise
+	Specs            map[string]string
+	CompatibleModels []string
+
+	// stock is private: other packages can read it with Stock(), but can
+	// only change it through Sell and Restock, which enforce the rules
+	// (never negative, never more sold than available).
+	stock int
 }

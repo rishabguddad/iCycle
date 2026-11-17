@@ -5,15 +5,35 @@ import (
 	"fmt"
 )
 
+// Stock returns how many units are available.
+func (p *Product) Stock() int {
+	return p.stock
+}
+
+// InStock reports whether at least one unit is available.
+func (p *Product) InStock() bool {
+	return p.stock > 0
+}
+
 // Sell reduces the product's stock by quantity.
 // It returns an error, and changes nothing, if the sale isn't possible.
 func (p *Product) Sell(quantity int) error {
 	if quantity <= 0 {
 		return errors.New("quantity must be at least 1")
 	}
-	if quantity > p.Stock {
-		return fmt.Errorf("only %d in stock", p.Stock)
+	if quantity > p.stock {
+		return fmt.Errorf("only %d in stock", p.stock)
 	}
-	p.Stock = p.Stock - quantity
+	p.stock = p.stock - quantity
+	return nil
+}
+
+// Restock adds quantity units, e.g. when a delivery arrives
+// or an order is cancelled.
+func (p *Product) Restock(quantity int) error {
+	if quantity <= 0 {
+		return errors.New("quantity must be at least 1")
+	}
+	p.stock = p.stock + quantity
 	return nil
 }
