@@ -1,4 +1,4 @@
-package main
+package catalog
 
 const (
 	conditionNew         = "new"

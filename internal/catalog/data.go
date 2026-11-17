@@ -1,4 +1,4 @@
-package main
+package catalog
 
 var categories = []Category{
 	{ID: 1, Name: "MacBooks"},

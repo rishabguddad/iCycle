@@ -1,20 +1,9 @@
-package main
+package catalog
 
 import (
 	"errors"
 	"fmt"
 )
-
-// findProduct returns a pointer to the product with the given ID,
-// or nil if there is no such product.
-func findProduct(id int) *Product {
-	for i := range products {
-		if products[i].ID == id {
-			return &products[i]
-		}
-	}
-	return nil
-}
 
 // Sell reduces the product's stock by quantity.
 // It returns an error, and changes nothing, if the sale isn't possible.
