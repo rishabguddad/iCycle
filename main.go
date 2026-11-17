@@ -1,21 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 const storeName = "MacBook Marketplace"
 
 func main() {
 	fmt.Println(welcomeMessage(storeName))
-	fmt.Println()
 
-	printProducts()
-	fmt.Println()
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/health", handleHealth)
+	mux.HandleFunc("GET /api/categories", handleListCategories)
 
-	trySell(1, 1)  // works: stock 1 → 0
-	trySell(1, 1)  // fails: no stock left
-	trySell(7, 5)  // works: stock 50 → 45
-	trySell(7, 0)  // fails: invalid quantity
-	trySell(99, 1) // fails: no product with ID 99
+	fmt.Println("Listening on http://localhost:8080")
+	err := http.ListenAndServe(":8080", mux)
+	if err != nil {
+		fmt.Println("Server stopped:", err)
+	}
 }
 
 // printProducts prints one line per product, with its category name.
