@@ -1,0 +1,95 @@
+# MacBook Marketplace catalog.
+# Loaded once when the server starts (see internal/catalog/load.go).
+# Prices are in paise: 12999900 = ₹1,29,999.00
+# condition must be one of: new, refurbished, used
+
+categories:
+  - id: 1
+    name: MacBooks
+  - id: 2
+    name: Components
+  - id: 3
+    name: Accessories
+
+products:
+  - id: 1
+    name: MacBook Pro 16-inch M2 Pro (2023)
+    description: Refurbished and fully tested. Battery health 95%. No scratches or dents.
+    categoryId: 1
+    condition: refurbished
+    price: 12999900
+    stock: 1
+    specs:
+      Processor: M2 Pro
+      Memory: 16GB
+      Storage: 512GB
+
+  - id: 2
+    name: MacBook Air 13-inch M5 (2026)
+    description: Used for 6 months. Light scratches on the lid. Battery health 98%.
+    categoryId: 1
+    condition: used
+    price: 9899900
+    stock: 5
+    specs:
+      Processor: M5
+      Memory: 8GB
+      Storage: 256GB
+
+  - id: 3
+    name: 40W USB-C Charger
+    description: Charges any USB-C MacBook.
+    categoryId: 3
+    condition: refurbished
+    price: 199900
+    stock: 20
+    specs:
+      Connector: USB-C
+      Output: 40W
+
+  - id: 4
+    name: MacBook Pro case
+    description: A durable and stylish case to protect your MacBook from scratches and bumps.
+    categoryId: 3
+    condition: new
+    price: 299900
+    stock: 15
+    specs:
+      Material: Polycarbonate
+      Color: Black
+    compatibleModels:
+      - MacBook Pro 16-inch
+
+  - id: 5
+    name: Display Assembly for MacBook Pro 16-inch
+    description: Complete replacement display, tested with no dead pixels.
+    categoryId: 2
+    condition: new
+    price: 4999900
+    stock: 10
+    specs:
+      Type: Liquid Retina XDR
+      Size: 16-inch
+    compatibleModels:
+      - MacBook Pro 16-inch M2 Pro (2023)
+
+  - id: 6
+    name: Battery for MacBook Air 13-inch M2
+    description: Replacement battery. Installation screws included.
+    categoryId: 2
+    condition: new
+    price: 699900
+    stock: 25
+    specs:
+      Capacity: 52.6 Wh
+      Battery Type: Lithium-polymer
+    compatibleModels:
+      - MacBook Air 13-inch M2 (2022)
+
+  - id: 7
+    name: USB-C to USB-C Cable (2 m)
+    description: Braided cable for charging and data transfer.
+    categoryId: 3
+    condition: new
+    price: 99900
+    stock: 50
