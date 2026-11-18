@@ -8,14 +8,22 @@ A plain HTML/CSS/JavaScript website, served by the same Go program, uses that AP
 
 Requires Go 1.22 or newer (the project uses 1.27).
 
-```
-go run .
-```
+1. Create your local settings file and choose an admin password:
+   ```
+   copy .env.example .env        (Windows)
+   cp .env.example .env          (macOS / Linux)
+   ```
+   Then edit `.env` and set `ADMIN_PASSWORD`. The `.env` file is git-ignored, so the password never
+   goes into the repository. A real `ADMIN_PASSWORD` environment variable works too.
+2. Start the server:
+   ```
+   go run .
+   ```
 
 | | URL |
 |---|---|
 | Shop | http://localhost:8080 |
-| Admin | http://localhost:8080/admin.html |
+| Admin | http://localhost:8080/admin.html (user `admin`, password from `.env`) |
 | API health check | http://localhost:8080/api/health |
 
 The catalog is read from [`data/catalog.yml`](data/catalog.yml) when the server starts.
@@ -34,7 +42,8 @@ Orders and admin changes are kept in memory, so they reset when the server resta
 ## Project structure
 
 ```
-main.go                  Loads the catalog, connects the packages, starts the server
+main.go                  Reads settings, loads the catalog, connects the packages, starts the server
+.env.example             Settings template (copy to .env, which is git-ignored)
 data/catalog.yml         Categories and products
 internal/
   catalog/               Products, categories and stock rules (knows nothing about HTTP)
@@ -54,6 +63,7 @@ internal/
     orders.go              Order handlers and their JSON shapes
     responses.go           Product and category JSON shapes
     errors.go              Maps named errors to HTTP status codes
+    auth.go                AdminOnly middleware (admin login)
     json.go                writeJSON, writeError, decodeJSON, pathID
 web/                     Shop page and admin page (HTML, CSS, JavaScript)
 ```
@@ -91,6 +101,10 @@ Errors always look like `{"error": "message"}`.
 
 ### Admin
 
+These endpoints, the order endpoints except placing an order, and the admin page itself need the
+admin login (HTTP Basic Auth). Without it they reply `401 Unauthorized`. With curl, add
+`-u admin:<your password>`. In a browser, the login box appears when you open the admin page.
+
 | Method | Path | Body | Description |
 |---|---|---|---|
 | POST | `/api/products` | product details + `stock` | Add a product. Replies 201 with its new ID |
@@ -104,10 +118,10 @@ Product details: `name`, `description`, `categoryId`, `condition`, `price`, `spe
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/orders` | Place an order. Replies 201 |
-| GET | `/api/orders` | All orders |
-| GET | `/api/orders/{id}` | One order |
-| POST | `/api/orders/{id}/cancel` | Cancel and put the stock back |
+| POST | `/api/orders` | Place an order. Replies 201. Public |
+| GET | `/api/orders` | All orders. Admin |
+| GET | `/api/orders/{id}` | One order. Admin |
+| POST | `/api/orders/{id}/cancel` | Cancel and put the stock back. Admin |
 
 Example order:
 
@@ -139,6 +153,7 @@ curl -X POST http://localhost:8080/api/orders -H "Content-Type: application/json
 | 201 | Created | Product added, order placed |
 | 204 | No Content | Product deleted |
 | 400 | The request itself is wrong | Invalid JSON, unknown field, quantity 0, 9-digit phone |
+| 401 | Admin login missing or wrong | Restocking without the password |
 | 404 | It doesn't exist | Product #99, order #99 |
 | 405 | Wrong method for this path | `DELETE /api/orders` |
 | 409 | Valid, but clashes with the current state | Not enough stock, order already cancelled |
@@ -180,5 +195,7 @@ with bad data. The same `ProductDetails.validate` rules are used by the admin AP
 
 - **Persistence:** data lives in memory. Next step: PostgreSQL. A small interface in `catalog`
   would let the store load from either YAML or the database.
-- **Authentication:** the admin endpoints are open. A real deployment needs login and an admin role.
+- **Authentication:** admin uses one password (from `.env`) with HTTP Basic Auth, which is fine
+  for a demo on localhost. A real deployment needs HTTPS, user accounts with hashed passwords, and
+  customer logins so customers can see their own orders.
 - **Tests:** automated tests for `catalog`, `order` and the HTTP handlers (`net/http/httptest`).

@@ -17,27 +17,34 @@ type server struct {
 }
 
 // NewRouter returns a router with every API route connected to its handler.
-func NewRouter(store *catalog.Store, orders *order.Service) *http.ServeMux {
+// Admin routes, and routes that show customers' details, need adminPassword.
+func NewRouter(store *catalog.Store, orders *order.Service, adminPassword string) *http.ServeMux {
 	s := &server{store: store, orders: orders}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/health", s.handleHealth)
+	// admin wraps a handler so it needs the admin login.
+	admin := func(handler http.HandlerFunc) http.Handler {
+		return AdminOnly(adminPassword, handler)
+	}
 
+	mux := http.NewServeMux()
+
+	// Public: anyone can browse and place an order.
+	mux.HandleFunc("GET /api/health", s.handleHealth)
 	mux.HandleFunc("GET /api/categories", s.handleListCategories)
 	mux.HandleFunc("GET /api/categories/{id}/products", s.handleListCategoryProducts)
-
 	mux.HandleFunc("GET /api/products", s.handleListProducts)
 	mux.HandleFunc("GET /api/products/{id}", s.handleGetProduct)
-
-	// Admin: manage the catalog.
-	mux.HandleFunc("POST /api/products", s.handleCreateProduct)
-	mux.HandleFunc("PUT /api/products/{id}", s.handleUpdateProduct)
-	mux.HandleFunc("DELETE /api/products/{id}", s.handleDeleteProduct)
-	mux.HandleFunc("POST /api/products/{id}/restock", s.handleRestockProduct)
-
 	mux.HandleFunc("POST /api/orders", s.handlePlaceOrder)
-	mux.HandleFunc("GET /api/orders", s.handleListOrders)
-	mux.HandleFunc("GET /api/orders/{id}", s.handleGetOrder)
-	mux.HandleFunc("POST /api/orders/{id}/cancel", s.handleCancelOrder)
+
+	// Admin only: manage the catalog.
+	mux.Handle("POST /api/products", admin(s.handleCreateProduct))
+	mux.Handle("PUT /api/products/{id}", admin(s.handleUpdateProduct))
+	mux.Handle("DELETE /api/products/{id}", admin(s.handleDeleteProduct))
+	mux.Handle("POST /api/products/{id}/restock", admin(s.handleRestockProduct))
+
+	// Admin only: orders hold customers' names, phones and addresses.
+	mux.Handle("GET /api/orders", admin(s.handleListOrders))
+	mux.Handle("GET /api/orders/{id}", admin(s.handleGetOrder))
+	mux.Handle("POST /api/orders/{id}/cancel", admin(s.handleCancelOrder))
 	return mux
 }
