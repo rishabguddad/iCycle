@@ -1,13 +1,9 @@
 package api
 
 import (
-	"encoding/json"
-	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
-	"macbook-marketplace/internal/catalog"
 	"macbook-marketplace/internal/order"
 )
 
@@ -101,9 +97,7 @@ func newOrderResponse(o *order.Order) orderResponse {
 // handlePlaceOrder answers POST /api/orders.
 func (s *server) handlePlaceOrder(w http.ResponseWriter, r *http.Request) {
 	var request placeOrderRequest
-	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)) // max 1 MB
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&request)
+	err := decodeJSON(w, r, &request)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
 		return
@@ -116,7 +110,7 @@ func (s *server) handlePlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	placed, err := s.orders.Place(toCustomer(request.Customer), lines)
 	if err != nil {
-		writeOrderError(w, err)
+		writeServiceError(w, err)
 		return
 	}
 
@@ -134,9 +128,8 @@ func (s *server) handleListOrders(w http.ResponseWriter, r *http.Request) {
 
 // handleGetOrder answers GET /api/orders/{id}.
 func (s *server) handleGetOrder(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "order id must be a number")
+	id, ok := pathID(w, r, "order")
+	if !ok {
 		return
 	}
 
@@ -151,32 +144,16 @@ func (s *server) handleGetOrder(w http.ResponseWriter, r *http.Request) {
 
 // handleCancelOrder answers POST /api/orders/{id}/cancel.
 func (s *server) handleCancelOrder(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "order id must be a number")
+	id, ok := pathID(w, r, "order")
+	if !ok {
 		return
 	}
 
 	cancelled, err := s.orders.Cancel(id)
 	if err != nil {
-		writeOrderError(w, err)
+		writeServiceError(w, err)
 		return
 	}
 
 	writeJSON(w, http.StatusOK, newOrderResponse(&cancelled))
-}
-
-// writeOrderError picks the HTTP status for an error from the order or
-// catalog package. errors.Is also finds errors wrapped with %w.
-func writeOrderError(w http.ResponseWriter, err error) {
-	switch {
-	case errors.Is(err, order.ErrInvalid), errors.Is(err, catalog.ErrInvalidQuantity):
-		writeError(w, http.StatusBadRequest, err.Error()) // 400: the request is wrong
-	case errors.Is(err, order.ErrNotFound), errors.Is(err, catalog.ErrProductNotFound):
-		writeError(w, http.StatusNotFound, err.Error()) // 404: it doesn't exist
-	case errors.Is(err, catalog.ErrOutOfStock), errors.Is(err, order.ErrAlreadyCancelled):
-		writeError(w, http.StatusConflict, err.Error()) // 409: valid, but clashes with current state
-	default:
-		writeError(w, http.StatusInternalServerError, "something went wrong")
-	}
 }

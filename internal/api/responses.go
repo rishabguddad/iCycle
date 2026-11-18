@@ -40,7 +40,7 @@ func newProductResponse(p *catalog.Product) productResponse {
 		Name:             p.Name,
 		Description:      p.Description,
 		CategoryID:       p.CategoryID,
-		Condition:        p.Condition,
+		Condition:        string(p.Condition),
 		Price:            p.Price,
 		Stock:            p.Stock(),
 		InStock:          p.InStock(),

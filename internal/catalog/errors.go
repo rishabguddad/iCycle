@@ -6,6 +6,7 @@ import "errors"
 // (for example, the API answers 404 for one and 409 for another).
 var (
 	ErrProductNotFound = errors.New("product not found")
+	ErrInvalidProduct  = errors.New("invalid product")
 	ErrInvalidQuantity = errors.New("quantity must be at least 1")
 	ErrOutOfStock      = errors.New("not enough stock")
 )

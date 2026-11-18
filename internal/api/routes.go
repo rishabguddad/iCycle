@@ -29,6 +29,12 @@ func NewRouter(store *catalog.Store, orders *order.Service) *http.ServeMux {
 	mux.HandleFunc("GET /api/products", s.handleListProducts)
 	mux.HandleFunc("GET /api/products/{id}", s.handleGetProduct)
 
+	// Admin: manage the catalog.
+	mux.HandleFunc("POST /api/products", s.handleCreateProduct)
+	mux.HandleFunc("PUT /api/products/{id}", s.handleUpdateProduct)
+	mux.HandleFunc("DELETE /api/products/{id}", s.handleDeleteProduct)
+	mux.HandleFunc("POST /api/products/{id}/restock", s.handleRestockProduct)
+
 	mux.HandleFunc("POST /api/orders", s.handlePlaceOrder)
 	mux.HandleFunc("GET /api/orders", s.handleListOrders)
 	mux.HandleFunc("GET /api/orders/{id}", s.handleGetOrder)

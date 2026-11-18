@@ -1,9 +1,11 @@
 // Package catalog holds the store's categories and products,
-// and the rules for finding and selling them. It knows nothing about HTTP.
+// and the rules for finding, selling and editing them. It knows nothing about HTTP.
 package catalog
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"sort"
 	"sync"
 )
@@ -38,6 +40,8 @@ func NewStore(categories []Category, products []Product) *Store {
 	return s
 }
 
+// ---- Categories ----
+
 // Categories returns a copy of every category.
 func (s *Store) Categories() []Category {
 	s.mu.Lock()
@@ -51,39 +55,35 @@ func (s *Store) CategoryExists(id int) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	return s.categoryIDs()[id]
+}
+
+// categoryIDs returns the set of category IDs. The caller must hold s.mu.
+func (s *Store) categoryIDs() map[int]bool {
+	ids := make(map[int]bool)
 	for _, category := range s.categories {
-		if category.ID == id {
-			return true
-		}
+		ids[category.ID] = true
 	}
-	return false
+	return ids
 }
 
-// Products returns a copy of every product, sorted by ID.
-func (s *Store) Products() []Product {
+// ---- Reading products ----
+
+// Products returns a copy of every product that matches the filter,
+// sorted by ID. Filter{} returns every product.
+func (s *Store) Products(filter Filter) []Product {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	result := []Product{}
 	for _, product := range s.products {
-		result = append(result, product.clone())
-	}
-	sortByID(result)
-	return result
-}
-
-// ProductsInCategory returns a copy of the products in one category, sorted by ID.
-func (s *Store) ProductsInCategory(categoryID int) []Product {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	result := []Product{}
-	for _, product := range s.products {
-		if product.CategoryID == categoryID {
+		if filter.matches(product) {
 			result = append(result, product.clone())
 		}
 	}
-	sortByID(result)
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].ID < result[j].ID
+	})
 	return result
 }
 
@@ -99,6 +99,67 @@ func (s *Store) Product(id int) (Product, bool) {
 	}
 	return product.clone(), true
 }
+
+// ---- Admin: adding, editing and removing products ----
+
+// AddProduct checks the details, gives the product the next free ID,
+// and adds it with the given starting stock.
+func (s *Store) AddProduct(details ProductDetails, stock int) (Product, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	err := details.validate(s.categoryIDs())
+	if err != nil {
+		return Product{}, err
+	}
+	if stock < 0 {
+		return Product{}, fmt.Errorf("%w: stock can't be negative", ErrInvalidProduct)
+	}
+
+	product := &Product{ID: s.nextID, ProductDetails: details, stock: stock}
+	product.Specs = maps.Clone(details.Specs) // our own copy: the caller can't change it later
+	product.CompatibleModels = slices.Clone(details.CompatibleModels)
+
+	s.nextID++
+	s.products[product.ID] = product
+	return product.clone(), nil
+}
+
+// UpdateProduct replaces the editable details of a product. Stock is untouched.
+func (s *Store) UpdateProduct(id int, details ProductDetails) (Product, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	product, ok := s.products[id]
+	if !ok {
+		return Product{}, ErrProductNotFound
+	}
+	err := details.validate(s.categoryIDs())
+	if err != nil {
+		return Product{}, err
+	}
+
+	product.ProductDetails = details // one line replaces every editable field
+	product.Specs = maps.Clone(details.Specs)
+	product.CompatibleModels = slices.Clone(details.CompatibleModels)
+	return product.clone(), nil
+}
+
+// DeleteProduct removes a product. Past orders keep their own copy of its
+// name and price, so they are not affected.
+func (s *Store) DeleteProduct(id int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	_, ok := s.products[id]
+	if !ok {
+		return ErrProductNotFound
+	}
+	delete(s.products, id)
+	return nil
+}
+
+// ---- Stock ----
 
 // Sell reduces the stock of the product with the given ID.
 func (s *Store) Sell(id int, quantity int) error {
@@ -153,21 +214,19 @@ func (s *Store) SellAll(sales []Sale) ([]Product, error) {
 	return sold, nil
 }
 
-// Restock adds quantity units to the product with the given ID.
-func (s *Store) Restock(id int, quantity int) error {
+// Restock adds quantity units to the product with the given ID
+// and returns a copy of the updated product.
+func (s *Store) Restock(id int, quantity int) (Product, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	product, ok := s.products[id]
 	if !ok {
-		return ErrProductNotFound
+		return Product{}, ErrProductNotFound
 	}
-	return product.Restock(quantity)
-}
-
-// sortByID sorts products by ID, smallest first.
-func sortByID(products []Product) {
-	sort.Slice(products, func(i, j int) bool {
-		return products[i].ID < products[j].ID
-	})
+	err := product.Restock(quantity)
+	if err != nil {
+		return Product{}, err
+	}
+	return product.clone(), nil
 }

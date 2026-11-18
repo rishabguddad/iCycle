@@ -123,7 +123,7 @@ func (s *Service) Cancel(id int) (Order, error) {
 	}
 
 	for _, item := range o.Items {
-		err := s.store.Restock(item.ProductID, item.Quantity)
+		_, err := s.store.Restock(item.ProductID, item.Quantity)
 		// A product removed from the catalog since has nowhere to go back to.
 		if err != nil && !errors.Is(err, catalog.ErrProductNotFound) {
 			return Order{}, err

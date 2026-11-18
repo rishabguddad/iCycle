@@ -107,39 +107,31 @@ func toProducts(records []productRecord, categories []Category) ([]Product, erro
 			return nil, fmt.Errorf("product %q: id must be a positive number", r.Name)
 		case seen[r.ID]:
 			return nil, fmt.Errorf("product id %d is used twice", r.ID)
-		case r.Name == "":
-			return nil, fmt.Errorf("product %d: name is required", r.ID)
-		case !categoryIDs[r.CategoryID]:
-			return nil, fmt.Errorf("product %d: category %d does not exist", r.ID, r.CategoryID)
-		case !validCondition(r.Condition):
-			return nil, fmt.Errorf("product %d: condition %q must be new, refurbished or used", r.ID, r.Condition)
-		case r.Price <= 0:
-			return nil, fmt.Errorf("product %d: price must be more than 0", r.ID)
 		case r.Stock < 0:
 			return nil, fmt.Errorf("product %d: stock can't be negative", r.ID)
 		}
 
-		seen[r.ID] = true
-		products = append(products, Product{
-			ID:               r.ID,
+		details := ProductDetails{
 			Name:             r.Name,
 			Description:      r.Description,
 			CategoryID:       r.CategoryID,
-			Condition:        r.Condition,
+			Condition:        Condition(r.Condition),
 			Price:            r.Price,
 			Specs:            r.Specs,
 			CompatibleModels: r.CompatibleModels,
-			stock:            r.Stock, // allowed: we are inside package catalog
+		}
+		// The same checks the admin API uses, so the rules live in one place.
+		err := details.validate(categoryIDs)
+		if err != nil {
+			return nil, fmt.Errorf("product %d: %w", r.ID, err)
+		}
+
+		seen[r.ID] = true
+		products = append(products, Product{
+			ID:             r.ID,
+			ProductDetails: details,
+			stock:          r.Stock, // allowed: we are inside package catalog
 		})
 	}
 	return products, nil
-}
-
-// validCondition reports whether c is one of the allowed conditions.
-func validCondition(c string) bool {
-	switch c {
-	case conditionNew, conditionRefurbished, conditionUsed:
-		return true
-	}
-	return false
 }
