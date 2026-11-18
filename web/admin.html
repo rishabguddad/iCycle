@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · MacBook Marketplace</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">MacBook Marketplace</a>
+    <nav class="nav">
+      <a href="/">Shop</a>
+      <a href="/admin.html" class="active">Admin</a>
+    </nav>
+  </header>
+
+  <main class="page admin">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Products</h2>
+        <span id="product-count" class="muted"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Category</th><th>Condition</th><th class="num">Price</th><th class="num">Stock</th><th></th></tr>
+          </thead>
+          <tbody id="product-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2 id="form-title">Add a product</h2>
+        <button id="cancel-edit" type="button" class="link" hidden>Cancel edit</button>
+      </div>
+      <form id="product-form" class="form grid-form">
+        <label class="wide">Name <input name="name" required></label>
+        <label class="wide">Description <textarea name="description" rows="2"></textarea></label>
+        <label>Category <select name="categoryId" id="category-select" required></select></label>
+        <label>Condition
+          <select name="condition" required>
+            <option value="new">New</option>
+            <option value="refurbished">Refurbished</option>
+            <option value="used">Used</option>
+          </select>
+        </label>
+        <label>Price (₹) <input name="price" type="number" min="1" step="0.01" required></label>
+        <label id="stock-field">Starting stock <input name="stock" type="number" min="0" step="1" value="1" required></label>
+        <label class="wide">Specs, one per line as <code>Key: Value</code>
+          <textarea name="specs" rows="3" placeholder="Processor: M2&#10;Memory: 16GB"></textarea>
+        </label>
+        <label class="wide">Compatible models, one per line
+          <textarea name="compatibleModels" rows="2"></textarea>
+        </label>
+        <button class="primary wide" type="submit" id="form-submit">Add product</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Orders</h2>
+        <button id="reload-orders" type="button" class="link">Reload</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>#</th><th>Customer</th><th>Items</th><th class="num">Total</th><th>Status</th><th>Placed</th><th></th></tr>
+          </thead>
+          <tbody id="order-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="/common.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

@@ -13,6 +13,7 @@ import (
 const (
 	storeName = "MacBook Marketplace"
 	dataFile  = "data/catalog.yml"
+	webDir    = "web"
 	address   = ":8080"
 )
 
@@ -26,6 +27,10 @@ func main() {
 
 	orders := order.NewService(store)
 	router := api.NewRouter(store, orders)
+
+	// The website: any URL that isn't an API route is a file from web/,
+	// e.g. "/" → web/index.html, "/app.js" → web/app.js.
+	router.Handle("GET /", http.FileServer(http.Dir(webDir)))
 
 	fmt.Println("Listening on http://localhost" + address)
 	err = http.ListenAndServe(address, router)
