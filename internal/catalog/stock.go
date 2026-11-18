@@ -1,7 +1,6 @@
 package catalog
 
 import (
-	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -30,10 +29,10 @@ func (p *Product) InStock() bool {
 // It returns an error, and changes nothing, if the sale isn't possible.
 func (p *Product) Sell(quantity int) error {
 	if quantity <= 0 {
-		return errors.New("quantity must be at least 1")
+		return ErrInvalidQuantity
 	}
 	if quantity > p.stock {
-		return fmt.Errorf("only %d in stock", p.stock)
+		return fmt.Errorf("%w: only %d of %s left", ErrOutOfStock, p.stock, p.Name)
 	}
 	p.stock = p.stock - quantity
 	return nil
@@ -43,7 +42,7 @@ func (p *Product) Sell(quantity int) error {
 // or an order is cancelled.
 func (p *Product) Restock(quantity int) error {
 	if quantity <= 0 {
-		return errors.New("quantity must be at least 1")
+		return ErrInvalidQuantity
 	}
 	p.stock = p.stock + quantity
 	return nil

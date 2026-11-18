@@ -3,13 +3,10 @@
 package catalog
 
 import (
-	"errors"
+	"fmt"
 	"sort"
 	"sync"
 )
-
-// ErrProductNotFound is returned when no product has the given ID.
-var ErrProductNotFound = errors.New("product not found")
 
 // Store holds every category and product.
 //
@@ -113,6 +110,59 @@ func (s *Store) Sell(id int, quantity int) error {
 		return ErrProductNotFound
 	}
 	return product.Sell(quantity)
+}
+
+// Sale is one product and how many units of it to sell.
+type Sale struct {
+	ProductID int
+	Quantity  int
+}
+
+// SellAll sells several products as one action: either every sale succeeds,
+// or (if any one fails) nothing changes. It returns a copy of each sold
+// product, in the same order as sales, so the caller can record the name
+// and price at the moment of sale.
+func (s *Store) SellAll(sales []Sale) ([]Product, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Step 1: check everything before changing anything.
+	// needed adds up the quantity per product, in case one appears twice.
+	needed := make(map[int]int)
+	for _, sale := range sales {
+		if sale.Quantity <= 0 {
+			return nil, ErrInvalidQuantity
+		}
+		product, ok := s.products[sale.ProductID]
+		if !ok {
+			return nil, fmt.Errorf("%w: #%d", ErrProductNotFound, sale.ProductID)
+		}
+		needed[sale.ProductID] += sale.Quantity
+		if needed[sale.ProductID] > product.stock {
+			return nil, fmt.Errorf("%w: only %d of %s left", ErrOutOfStock, product.stock, product.Name)
+		}
+	}
+
+	// Step 2: everything is available, so sell it.
+	sold := []Product{}
+	for _, sale := range sales {
+		product := s.products[sale.ProductID]
+		product.stock -= sale.Quantity // safe: step 1 checked it
+		sold = append(sold, product.clone())
+	}
+	return sold, nil
+}
+
+// Restock adds quantity units to the product with the given ID.
+func (s *Store) Restock(id int, quantity int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	product, ok := s.products[id]
+	if !ok {
+		return ErrProductNotFound
+	}
+	return product.Restock(quantity)
 }
 
 // sortByID sorts products by ID, smallest first.

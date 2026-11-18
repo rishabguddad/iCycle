@@ -7,6 +7,7 @@ import (
 
 	"macbook-marketplace/internal/api"
 	"macbook-marketplace/internal/catalog"
+	"macbook-marketplace/internal/order"
 )
 
 const (
@@ -23,7 +24,8 @@ func main() {
 		log.Fatal(err) // prints the error and stops: no point serving without data
 	}
 
-	router := api.NewRouter(store)
+	orders := order.NewService(store)
+	router := api.NewRouter(store, orders)
 
 	fmt.Println("Listening on http://localhost" + address)
 	err = http.ListenAndServe(address, router)
