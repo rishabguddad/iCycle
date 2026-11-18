@@ -1,7 +1,11 @@
-# MacBook Marketplace
+# iCycle
 
-An online shop for used and refurbished MacBooks, replacement parts and accessories.
-The backend is a Go REST API built only on the standard library plus a YAML parser.
+*iPhones and Macs, given a second life.*
+
+An online shop for used and refurbished iPhones and MacBooks, replacement parts and accessories.
+(The Go module is still called `macbook-marketplace`, the project's original name.)
+The backend is a Go REST API built on the standard library, plus two small libraries: a YAML
+parser (`gopkg.in/yaml.v3`) and a `.env` loader (`github.com/joho/godotenv`).
 A plain HTML/CSS/JavaScript website, served by the same Go program, uses that API.
 
 ## Run it
@@ -13,8 +17,9 @@ Requires Go 1.22 or newer (the project uses 1.27).
    copy .env.example .env        (Windows)
    cp .env.example .env          (macOS / Linux)
    ```
-   Then edit `.env` and set `ADMIN_PASSWORD`. The `.env` file is git-ignored, so the password never
-   goes into the repository. A real `ADMIN_PASSWORD` environment variable works too.
+   Then edit `.env` and set `ADMIN_PASSWORD` (and optionally `PORT`, default 8080).
+   The `.env` file is git-ignored, so the password never goes into the repository.
+   Real environment variables work too. The server refuses to start without a password.
 2. Start the server:
    ```
    go run .
@@ -23,7 +28,7 @@ Requires Go 1.22 or newer (the project uses 1.27).
 | | URL |
 |---|---|
 | Shop | http://localhost:8080 |
-| Admin | http://localhost:8080/admin.html (user `admin`, password from `.env`) |
+| Admin | http://localhost:8080/admin.html (the browser asks for user `admin` and the password from `.env`) |
 | API health check | http://localhost:8080/api/health |
 
 The catalog is read from [`data/catalog.yml`](data/catalog.yml) when the server starts.
@@ -31,18 +36,20 @@ Orders and admin changes are kept in memory, so they reset when the server resta
 
 ## Features
 
+- Four categories: MacBooks, iPhones, Parts and Accessories, each product with a real photo.
 - Browse products by category, search by name or description, filter by condition and stock.
 - Product details with specifications and compatible models.
 - Cart and checkout. An order with several products is all-or-nothing: if one line can't
   be fulfilled, no stock changes.
 - Cancel an order, which puts its stock back.
-- Admin: add, edit and delete products, and restock them.
+- Admin page, protected by a password: add, edit, delete and restock products; view and cancel orders.
 - Safe under concurrent requests: two customers can't buy the same last unit.
 
 ## Project structure
 
 ```
 main.go                  Reads settings, loads the catalog, connects the packages, starts the server
+messages.go              Welcome message printed at startup
 .env.example             Settings template (copy to .env, which is git-ignored)
 data/catalog.yml         Categories and products
 internal/
@@ -66,6 +73,7 @@ internal/
     auth.go                AdminOnly middleware (admin login)
     json.go                writeJSON, writeError, decodeJSON, pathID
 web/                     Shop page and admin page (HTML, CSS, JavaScript)
+  images/                Product photos (see "Photos" below)
 ```
 
 Dependencies point one way: `main → api → order → catalog`.
@@ -74,13 +82,13 @@ Dependencies point one way: `main → api → order → catalog`.
 ## How a request flows
 
 ```
-Browser  ── GET /api/products/6 ──►  router (api/routes.go)
+Browser  ── GET /api/products/7 ──►  router (api/routes.go)
                                       └─► server.handleGetProduct (api/handlers.go)
                                             ├─ read and check the id     (400 if not a number)
-                                            ├─ store.Product(6)          catalog: lock → map lookup → copy → unlock
+                                            ├─ store.Product(7)          catalog: lock → map lookup → copy → unlock
                                             │                            (404 if missing)
                                             └─ newProductResponse → writeJSON (200 + JSON)
-Browser  ◄── {"id":6,"name":"Battery for MacBook Air 13-inch M2",...}
+Browser  ◄── {"id":7,"name":"iPhone 14 128GB, Red","price":4499900,"stock":4,...}
 ```
 
 ## API
@@ -112,7 +120,8 @@ admin login (HTTP Basic Auth). Without it they reply `401 Unauthorized`. With cu
 | DELETE | `/api/products/{id}` | | Remove a product. Replies 204 |
 | POST | `/api/products/{id}/restock` | `{"quantity": 10}` | Add stock |
 
-Product details: `name`, `description`, `categoryId`, `condition`, `price`, `specs` (object), `compatibleModels` (array).
+Product details: `name`, `description`, `categoryId`, `condition`, `price`, `image` (optional:
+`/images/<file>` or an `https://` link), `specs` (object), `compatibleModels` (array).
 
 ### Orders
 
@@ -133,8 +142,8 @@ Example order:
     "address": { "line1": "12 MG Road", "city": "Bengaluru", "state": "Karnataka", "pincode": "560001" }
   },
   "items": [
-    { "productId": 3, "quantity": 2 },
-    { "productId": 7, "quantity": 1 }
+    { "productId": 7, "quantity": 1 },
+    { "productId": 14, "quantity": 2 }
   ]
 }
 ```
@@ -188,8 +197,38 @@ overwrite sales made in the meantime.
 sale, so later price changes or deletions don't change past orders.
 
 **Data is checked once, at startup.** `LoadFile` refuses unknown fields (typos), duplicate IDs,
-unknown categories, invalid conditions and negative prices or stock, and the server won't start
-with bad data. The same `ProductDetails.validate` rules are used by the admin API.
+unknown categories, invalid conditions, negative prices or stock, and image links that aren't
+`/images/...` or `https://...`. The server won't start with bad data. The same `ProductDetails.validate` rules are used by the admin API.
+
+## Photos
+
+Product photos in `web/images/` are from Wikimedia Commons, used under CC0, CC BY and CC BY-SA
+licences, resized (and in one case cropped) for the shop. They show the kind of item sold, not the
+exact unit. The licences require this credit; if the site is made public, show it on the site too.
+
+| Photo | Author | Licence | Source |
+|---|---|---|---|
+| `macbook-pro-16.jpg` | Premeditated | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MacBook_Pro_16_(M1_Pro,_2021)_-_Wikipedia_(cropped).jpg) |
+| `macbook-air-midnight.jpg` | KKPCW（Kyu3） | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:M2_Macbook_Air_Midnight_model_-_2.jpg) |
+| `macbook-air-starlight.jpg` | KKPCW（Kyu3） | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:M2_Macbook_Air_Starlight_model.jpg) |
+| `macbook-air-m1.jpg` | Padgriffin | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MacBook_Air_M1.png) |
+| `iphone-15-pro-max.jpg` | Ayamano2021 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Front_of_iPhone_15_Pro_Max.jpg) |
+| `iphone-14-pro.jpg` | iGeeksBlog | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:IPhone_14_Pro_Deep_Purple.jpg) |
+| `iphone-14.jpg` | Hajoon0102 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:IPhone_14_Product_Red.jpg) |
+| `iphone-13-pro.jpg` | SimonWaldherr | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Apple_iPhone_13_Pro_and_13_Pro_Max.jpg) |
+| `macbook-pro-fans.jpg` | Netha Hussain | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Teardown_of_MacBook_Pro_16_inch_laptop.jpg) |
+| `macbook-battery.jpg` | Daniel Nebdal | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Macbook_battery_exposed.png) |
+| `iphone-13-camera.jpg` | 人工知能 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:IPhone_13_camera_lens_group.jpg) |
+| `usb-c-power-adapter.jpg` | Tony Webster from Minneapolis, Minnesota, United States | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Apple_USB-C_(USB_Type_C)_87W_Power_Adapter_for_MacBook_Pro_(48979218053).jpg) |
+| `laptop-sleeve.jpg` | Richardinsky | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Cozistyle_Stand_Sleeve.jpg) |
+| `usb-c-cable.jpg` | Dinkun Chen | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:IKEA_SITTBRUNN_USB_C_TO_C_CABLE.jpg) |
+| `iphone-silicone-case.jpg` | 茅野ふたば | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Apple_iPhone_17_Silicone_Case_(Black).jpg) |
+| `magsafe-charger.jpg` | James Tamim | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MagSafe_and_USB-C_Cable_Charger_for_iPhone.jpg) |
+
+Apple, iPhone, MacBook and MagSafe are trademarks of Apple Inc.; this project is not affiliated with Apple.
+
+To use your own photo, put it in `web/images/` and set `image: /images/<file>` for the product in
+`data/catalog.yml`, or use the Image field on the admin page.
 
 ## Limitations and next steps
 

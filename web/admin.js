@@ -34,6 +34,7 @@ async function loadProducts() {
       return `
         <tr>
           <td>${p.id}</td>
+          <td class="thumb-cell">${productImage(p, "table-thumb")}</td>
           <td>${escapeHTML(p.name)}</td>
           <td>${escapeHTML(category ? category.name : p.categoryId)}</td>
           <td><span class="badge ${escapeHTML(p.condition)}">${escapeHTML(p.condition)}</span></td>
@@ -77,6 +78,7 @@ async function saveProduct(event) {
     categoryId: Number(value("categoryId")),
     condition: value("condition"),
     price: Math.round(Number(value("price")) * 100), // rupees → paise
+    image: value("image").trim(),
     specs: parseSpecs(value("specs")),
     compatibleModels: lines(value("compatibleModels")),
   };
@@ -108,6 +110,7 @@ function startEditing(id) {
   form.elements.categoryId.value = p.categoryId;
   form.elements.condition.value = p.condition;
   form.elements.price.value = p.price / 100;
+  form.elements.image.value = p.image || "";
   form.elements.specs.value = Object.entries(p.specs || {})
     .map(([k, v]) => `${k}: ${v}`)
     .join("\n");

@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MacBook Marketplace</title>
+  <title>iCycle · iPhones and Macs, given a second life</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="/">MacBook Marketplace</a>
+    <div class="brand-block">
+      <a class="brand" href="/"><span class="logo" aria-hidden="true"></span>iCycle</a>
+      <span class="brand-tagline">iPhones &amp; Macs, given a second life</span>
+    </div>
     <nav class="nav">
       <a href="/" class="active">Shop</a>
       <a href="/admin.html">Admin</a>
@@ -19,11 +22,6 @@
   </header>
 
   <main class="page">
-    <section class="hero">
-      <h1>Used &amp; refurbished MacBooks, parts and accessories</h1>
-      <p>Every device tested. Every part matched to the model it fits.</p>
-    </section>
-
     <section class="toolbar" aria-label="Filters">
       <div id="category-tabs" class="tabs"></div>
       <div class="filters">
@@ -40,6 +38,27 @@
 
     <p id="status" class="status"></p>
     <section id="product-grid" class="grid" aria-live="polite"></section>
+
+    <section class="about" aria-labelledby="about-title">
+      <div class="about-main">
+        <h2 id="about-title">About iCycle</h2>
+        <p>iCycle sells used and refurbished iPhones and MacBooks, replacement parts matched to the
+          exact model they fit, and the accessories to go with them.</p>
+        <ul class="promises">
+          <li><span class="tick" aria-hidden="true">✓</span><div><strong>Tested</strong><span>Every device is checked before it is listed</span></div></li>
+          <li><span class="tick" aria-hidden="true">✓</span><div><strong>Battery health</strong><span>Shown for every phone and laptop</span></div></li>
+          <li><span class="tick" aria-hidden="true">✓</span><div><strong>Exact fit</strong><span>Parts matched to your model</span></div></li>
+        </ul>
+      </div>
+      <div class="about-side">
+        <h3>Condition guide</h3>
+        <dl class="conditions">
+          <div><dt><span class="badge new">new</span></dt><dd>Unused, in original packaging</dd></div>
+          <div><dt><span class="badge refurbished">refurbished</span></dt><dd>Restored and tested, worn parts replaced</dd></div>
+          <div><dt><span class="badge used">used</span></dt><dd>Pre-owned and fully working, may show light wear</dd></div>
+        </dl>
+      </div>
+    </section>
   </main>
 
   <!-- Product details -->
@@ -68,6 +87,13 @@
     </form>
     <div id="order-result"></div>
   </dialog>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span><strong>iCycle</strong> · iPhones &amp; Macs, given a second life</span>
+      <span>© 2026 · Prices include GST</span>
+    </div>
+  </footer>
 
   <div id="toast" class="toast" role="status"></div>
 

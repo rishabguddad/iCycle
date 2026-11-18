@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	storeName = "MacBook Marketplace"
-	dataFile  = "data/catalog.yml"
-	webDir    = "web"
-	address   = ":8080"
+	storeName   = "iCycle"
+	dataFile    = "data/catalog.yml"
+	webDir      = "web"
+	defaultPort = "8080"
 )
 
 func main() {
@@ -31,6 +31,11 @@ func main() {
 	if adminPassword == "" {
 		log.Fatal("ADMIN_PASSWORD is not set: copy .env.example to .env and set a password")
 	}
+	port := os.Getenv("PORT") // optional: most hosting services set PORT themselves
+	if port == "" {
+		port = defaultPort
+	}
+	address := ":" + port
 
 	store, err := catalog.LoadFile(dataFile)
 	if err != nil {

@@ -39,7 +39,8 @@ type ProductDetails struct {
 	Description      string
 	CategoryID       int
 	Condition        Condition
-	Price            int64 // in paise
+	Price            int64  // in paise
+	Image            string // optional: "/images/x.jpg" (our server) or an https:// URL
 	Specs            map[string]string
 	CompatibleModels []string
 }
@@ -55,6 +56,9 @@ func (d ProductDetails) validate(categoryIDs map[int]bool) error {
 		return fmt.Errorf("%w: condition %q must be new, refurbished or used", ErrInvalidProduct, d.Condition)
 	case d.Price <= 0:
 		return fmt.Errorf("%w: price must be more than 0", ErrInvalidProduct)
+	case d.Image != "" && !strings.HasPrefix(d.Image, "/images/") && !strings.HasPrefix(d.Image, "https://"):
+		// Only our own images or secure links: no "javascript:" or other tricks.
+		return fmt.Errorf("%w: image must start with /images/ or https://", ErrInvalidProduct)
 	}
 	return nil
 }

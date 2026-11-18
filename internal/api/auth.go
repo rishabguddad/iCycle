@@ -20,7 +20,7 @@ func AdminOnly(password string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
 		if !ok || !sameText(user, adminUser) || !sameText(pass, password) {
-			w.Header().Set("WWW-Authenticate", `Basic realm="MacBook Marketplace admin", charset="UTF-8"`)
+			w.Header().Set("WWW-Authenticate", `Basic realm="iCycle admin", charset="UTF-8"`)
 			writeError(w, http.StatusUnauthorized, "admin login required")
 			return
 		}

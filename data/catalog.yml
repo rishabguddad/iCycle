@@ -1,17 +1,21 @@
-# MacBook Marketplace catalog.
+# iCycle catalog.
 # Loaded once when the server starts (see internal/catalog/load.go).
 # Prices are in paise: 12999900 = ₹1,29,999.00
 # condition must be one of: new, refurbished, used
+# image is optional: /images/<file> (from web/images) or an https:// link
 
 categories:
   - id: 1
     name: MacBooks
   - id: 2
-    name: Components
+    name: iPhones
   - id: 3
+    name: Parts
+  - id: 4
     name: Accessories
 
 products:
+  # ---------- MacBooks ----------
   - id: 1
     name: MacBook Pro 16-inch M2 Pro (2023)
     description: Refurbished and fully tested. Battery health 95%. No scratches or dents.
@@ -19,77 +23,218 @@ products:
     condition: refurbished
     price: 12999900
     stock: 1
+    image: /images/macbook-pro-16.jpg
     specs:
       Processor: M2 Pro
       Memory: 16GB
       Storage: 512GB
+      Display: 16.2-inch Liquid Retina XDR
 
   - id: 2
-    name: MacBook Air 13-inch M5 (2026)
-    description: Used for 6 months. Light scratches on the lid. Battery health 98%.
+    name: MacBook Air 13-inch M5 (2026), Midnight
+    description: Used for 6 months. Light marks on the lid. Battery health 98%.
     categoryId: 1
     condition: used
     price: 9899900
     stock: 5
+    image: /images/macbook-air-midnight.jpg
     specs:
       Processor: M5
-      Memory: 8GB
+      Memory: 16GB
       Storage: 256GB
+      Colour: Midnight
 
   - id: 3
-    name: 40W USB-C Charger
-    description: Charges any USB-C MacBook.
-    categoryId: 3
+    name: MacBook Air 13-inch M2 (2022), Starlight
+    description: Refurbished with a new battery. Comes with a 6-month warranty.
+    categoryId: 1
     condition: refurbished
-    price: 199900
-    stock: 20
+    price: 6499900
+    stock: 3
+    image: /images/macbook-air-starlight.jpg
     specs:
-      Connector: USB-C
-      Output: 40W
+      Processor: M2
+      Memory: 8GB
+      Storage: 256GB
+      Colour: Starlight
 
   - id: 4
-    name: MacBook Pro case
-    description: A durable and stylish case to protect your MacBook from scratches and bumps.
-    categoryId: 3
-    condition: new
-    price: 299900
-    stock: 15
+    name: MacBook Air 13-inch M1 (2020), Gold
+    description: A great first Mac. Used, fully working, small scuff on one corner.
+    categoryId: 1
+    condition: used
+    price: 4299900
+    stock: 2
+    image: /images/macbook-air-m1.jpg
     specs:
-      Material: Polycarbonate
-      Color: Black
-    compatibleModels:
-      - MacBook Pro 16-inch
+      Processor: M1
+      Memory: 8GB
+      Storage: 256GB
+      Colour: Gold
 
+  # ---------- iPhones ----------
   - id: 5
-    name: Display Assembly for MacBook Pro 16-inch
-    description: Complete replacement display, tested with no dead pixels.
+    name: iPhone 15 Pro Max 256GB
+    description: Refurbished, new battery fitted. Screen and body in excellent condition.
     categoryId: 2
-    condition: new
-    price: 4999900
-    stock: 10
+    condition: refurbished
+    price: 10499900
+    stock: 2
+    image: /images/iphone-15-pro-max.jpg
     specs:
-      Type: Liquid Retina XDR
-      Size: 16-inch
-    compatibleModels:
-      - MacBook Pro 16-inch M2 Pro (2023)
+      Chip: A17 Pro
+      Storage: 256GB
+      Display: 6.7-inch Super Retina XDR
+      Battery health: 100%
 
   - id: 6
+    name: iPhone 14 Pro 256GB, Deep Purple
+    description: Used for one year, always in a case. Battery health 91%.
+    categoryId: 2
+    condition: used
+    price: 6999900
+    stock: 3
+    image: /images/iphone-14-pro.jpg
+    specs:
+      Chip: A16 Bionic
+      Storage: 256GB
+      Display: 6.1-inch Super Retina XDR
+      Battery health: 91%
+
+  - id: 7
+    name: iPhone 14 128GB, Red
+    description: Used, light wear on the frame. Unlocked for all networks.
+    categoryId: 2
+    condition: used
+    price: 4499900
+    stock: 4
+    image: /images/iphone-14.jpg
+    specs:
+      Chip: A15 Bionic
+      Storage: 128GB
+      Display: 6.1-inch Super Retina XDR
+      Battery health: 88%
+
+  - id: 8
+    name: iPhone 13 Pro 128GB, Graphite
+    description: Used. Fully tested, Face ID and all cameras working.
+    categoryId: 2
+    condition: used
+    price: 3999900
+    stock: 1
+    image: /images/iphone-13-pro.jpg
+    specs:
+      Chip: A15 Bionic
+      Storage: 128GB
+      Display: 6.1-inch Super Retina XDR with ProMotion
+      Battery health: 86%
+
+  # ---------- Parts ----------
+  - id: 9
+    name: Cooling Fans for MacBook Pro 16-inch (pair)
+    description: Left and right fans, tested and quiet. Screws included.
+    categoryId: 3
+    condition: new
+    price: 349900
+    stock: 8
+    image: /images/macbook-pro-fans.jpg
+    compatibleModels:
+      - MacBook Pro 16-inch M1 Pro (2021)
+      - MacBook Pro 16-inch M2 Pro (2023)
+
+  - id: 10
     name: Battery for MacBook Air 13-inch M2
     description: Replacement battery. Installation screws included.
-    categoryId: 2
+    categoryId: 3
     condition: new
     price: 699900
     stock: 25
+    image: /images/macbook-battery.jpg
     specs:
       Capacity: 52.6 Wh
       Battery Type: Lithium-polymer
     compatibleModels:
       - MacBook Air 13-inch M2 (2022)
 
-  - id: 7
-    name: USB-C to USB-C Cable (2 m)
-    description: Braided cable for charging and data transfer.
+  - id: 11
+    name: Rear Camera Module for iPhone 13
+    description: Dual rear camera with lens cover. Tested for focus and stabilisation.
     categoryId: 3
     condition: new
-    price: 99900
+    price: 549900
+    stock: 6
+    image: /images/iphone-13-camera.jpg
+    compatibleModels:
+      - iPhone 13
+
+  # ---------- Accessories ----------
+  - id: 12
+    name: 87W USB-C Power Adapter
+    description: Sealed in the original box. Fast-charges any USB-C MacBook.
+    categoryId: 4
+    condition: new
+    price: 449900
+    stock: 10
+    image: /images/usb-c-power-adapter.jpg
+    specs:
+      Output: 87W
+      Connector: USB-C
+    compatibleModels:
+      - Any USB-C MacBook
+
+  - id: 13
+    name: Stand Sleeve for MacBook 13-inch
+    description: Protective sleeve that folds into a laptop stand.
+    categoryId: 4
+    condition: new
+    price: 249900
+    stock: 15
+    image: /images/laptop-sleeve.jpg
+    specs:
+      Material: Felt and leather
+      Fits: 13-inch MacBook Air and Pro
+    compatibleModels:
+      - MacBook Air 13-inch
+      - MacBook Pro 13-inch
+
+  - id: 14
+    name: USB-C to USB-C Cable (1 m)
+    description: Charge and sync any USB-C iPhone, iPad or MacBook.
+    categoryId: 4
+    condition: new
+    price: 79900
     stock: 50
+    image: /images/usb-c-cable.jpg
+    specs:
+      Length: 1 m
+      Connectors: USB-C to USB-C
+      Power: Up to 60W (3A)
+      Data: 480 Mbps
+    compatibleModels:
+      - iPhone 15 and later
+      - Any USB-C MacBook
+
+  - id: 15
+    name: Silicone Case for iPhone 17, Black
+    description: Soft-touch silicone with a microfibre lining. Works with MagSafe.
+    categoryId: 4
+    condition: new
+    price: 349900
+    stock: 12
+    image: /images/iphone-silicone-case.jpg
+    compatibleModels:
+      - iPhone 17
+
+  - id: 16
+    name: MagSafe Charger (1 m)
+    description: Magnetic wireless charger with a USB-C cable.
+    categoryId: 4
+    condition: new
+    price: 399900
+    stock: 20
+    image: /images/magsafe-charger.jpg
+    specs:
+      Connector: USB-C
+      Length: 1 m
+    compatibleModels:
+      - iPhone 12 and later

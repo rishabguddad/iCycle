@@ -20,6 +20,7 @@ type productResponse struct {
 	CategoryID       int               `json:"categoryId"`
 	Condition        string            `json:"condition"`
 	Price            int64             `json:"price"` // in paise
+	Image            string            `json:"image,omitempty"`
 	Stock            int               `json:"stock"`
 	InStock          bool              `json:"inStock"`
 	Specs            map[string]string `json:"specs,omitempty"`
@@ -42,6 +43,7 @@ func newProductResponse(p *catalog.Product) productResponse {
 		CategoryID:       p.CategoryID,
 		Condition:        string(p.Condition),
 		Price:            p.Price,
+		Image:            p.Image,
 		Stock:            p.Stock(),
 		InStock:          p.InStock(),
 		Specs:            p.Specs,

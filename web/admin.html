@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin · MacBook Marketplace</title>
+  <title>Admin · iCycle</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="/">MacBook Marketplace</a>
+    <a class="brand" href="/"><span class="logo" aria-hidden="true"></span>iCycle</a>
     <nav class="nav">
       <a href="/">Shop</a>
       <a href="/admin.html" class="active">Admin</a>
@@ -24,7 +24,7 @@
       <div class="table-wrap">
         <table class="table">
           <thead>
-            <tr><th>ID</th><th>Name</th><th>Category</th><th>Condition</th><th class="num">Price</th><th class="num">Stock</th><th></th></tr>
+            <tr><th>ID</th><th></th><th>Name</th><th>Category</th><th>Condition</th><th class="num">Price</th><th class="num">Stock</th><th></th></tr>
           </thead>
           <tbody id="product-rows"></tbody>
         </table>
@@ -48,6 +48,7 @@
           </select>
         </label>
         <label>Price (₹) <input name="price" type="number" min="1" step="0.01" required></label>
+        <label class="wide">Image <input name="image" placeholder="/images/iphone-14.jpg or https://…"></label>
         <label id="stock-field">Starting stock <input name="stock" type="number" min="0" step="1" value="1" required></label>
         <label class="wide">Specs, one per line as <code>Key: Value</code>
           <textarea name="specs" rows="3" placeholder="Processor: M2&#10;Memory: 16GB"></textarea>

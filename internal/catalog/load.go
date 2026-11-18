@@ -31,6 +31,7 @@ type productRecord struct {
 	CategoryID       int               `yaml:"categoryId"`
 	Condition        string            `yaml:"condition"`
 	Price            int64             `yaml:"price"`
+	Image            string            `yaml:"image"`
 	Stock            int               `yaml:"stock"`
 	Specs            map[string]string `yaml:"specs"`
 	CompatibleModels []string          `yaml:"compatibleModels"`
@@ -117,6 +118,7 @@ func toProducts(records []productRecord, categories []Category) ([]Product, erro
 			CategoryID:       r.CategoryID,
 			Condition:        Condition(r.Condition),
 			Price:            r.Price,
+			Image:            r.Image,
 			Specs:            r.Specs,
 			CompatibleModels: r.CompatibleModels,
 		}

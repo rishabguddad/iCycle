@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"macbook-marketplace/internal/catalog"
 )
@@ -14,6 +15,7 @@ type productRequest struct {
 	CategoryID       int               `json:"categoryId"`
 	Condition        string            `json:"condition"`
 	Price            int64             `json:"price"` // in paise
+	Image            string            `json:"image"`
 	Specs            map[string]string `json:"specs"`
 	CompatibleModels []string          `json:"compatibleModels"`
 }
@@ -32,6 +34,7 @@ func (p productRequest) toDetails() catalog.ProductDetails {
 		CategoryID:       p.CategoryID,
 		Condition:        catalog.Condition(p.Condition),
 		Price:            p.Price,
+		Image:            strings.TrimSpace(p.Image),
 		Specs:            p.Specs,
 		CompatibleModels: p.CompatibleModels,
 	}

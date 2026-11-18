@@ -80,7 +80,7 @@ function renderGrid(products) {
       (p) => `
       <article class="card">
         <button type="button" class="card-image" data-view="${p.id}" aria-label="View ${escapeHTML(p.name)}">
-          <span>${categoryIcon(p.categoryId)}</span>
+          ${productImage(p, "card-img")}
         </button>
         <div class="card-body">
           <div class="card-meta">
@@ -114,7 +114,7 @@ async function showProduct(id) {
         <span class="badge ${escapeHTML(p.condition)}">${escapeHTML(p.condition)}</span>
         <button class="icon-button" data-close type="button" aria-label="Close">✕</button>
       </div>
-      <div class="detail-image">${categoryIcon(p.categoryId)}</div>
+      <div class="detail-image">${productImage(p, "detail-img")}</div>
       <h2>${escapeHTML(p.name)}</h2>
       <p class="muted">${escapeHTML(categoryName(p.categoryId))}</p>
       <p>${escapeHTML(p.description)}</p>
@@ -134,7 +134,7 @@ async function showProduct(id) {
 
 function loadCart() {
   try {
-    return JSON.parse(localStorage.getItem("cart")) || [];
+    return JSON.parse(localStorage.getItem("cart-v2")) || [];
   } catch {
     return [];
   }
@@ -142,7 +142,7 @@ function loadCart() {
 
 function saveCart() {
   try {
-    localStorage.setItem("cart", JSON.stringify(state.cart));
+    localStorage.setItem("cart-v2", JSON.stringify(state.cart));
   } catch {
     /* storage unavailable: the cart still works until the page reloads */
   }
@@ -203,7 +203,7 @@ function renderCart() {
       total += lineTotal;
       return `
         <li class="cart-line">
-          <span class="cart-icon">${categoryIcon(p.categoryId)}</span>
+          <span class="cart-icon">${productImage(p, "cart-thumb")}</span>
           <div class="cart-name">
             <strong>${escapeHTML(p.name)}</strong>
             <span class="muted">${formatPrice(p.price)} each</span>
